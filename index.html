@@ -269,6 +269,53 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
+        /* Estilos para el mensaje sorpresa */
+        .surprise-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            color: white;
+            padding: 25px 45px;
+            border-radius: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            z-index: 10000;
+            animation: surprisePop 3s forwards;
+            box-shadow: 0 0 50px rgba(255, 107, 107, 0.7);
+            border: 5px solid white;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes surprisePop {
+            0% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.5);
+                box-shadow: 0 0 0px rgba(255, 107, 107, 0);
+            }
+            20% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1.2);
+                box-shadow: 0 0 60px rgba(255, 107, 107, 0.8);
+            }
+            40% { 
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 40px rgba(255, 107, 107, 0.7);
+            }
+            80% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+            }
+            100% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 0px rgba(255, 107, 107, 0);
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -293,6 +340,11 @@
                 right: 10px;
                 padding: 12px 20px;
                 font-size: 1em;
+            }
+            .surprise-message {
+                font-size: 1.5em;
+                padding: 20px 30px;
+                max-width: 80%;
             }
         }
     </style>
@@ -373,11 +425,10 @@
             {
                 gif: "https://media1.tenor.com/m/d4orsYWTzyIAAAAd/jennie-jennie-mantra.gif",
                 frase: "Karen, contigo todo me va tan bien, sin ti nada me sabe bien, tu nombre y sonrisa combinan bien, y contigo me quiero quedar también"
-
             },
             {
                 gif: "https://i.pinimg.com/originals/26/19/7d/26197dba221533ceb186cd08472afb73.gif",
-                frase: "Por si te lo preguntas, tú eres lo único que deseo esta Navidad "
+                frase: "Por si te lo preguntas, tú eres lo único que deseo esta Navidad"
             }
         ];
 
@@ -387,6 +438,27 @@
         const gifElement = document.getElementById('christmasGif');
         const messageElement = document.getElementById('messageText');
         const buttonElement = document.querySelector('.change-btn');
+
+        // Función para mostrar mensaje sorpresa después de 7 segundos
+        function showSurpriseMessage() {
+            // Crear elemento del mensaje
+            const surprise = document.createElement('div');
+            surprise.className = 'surprise-message';
+            surprise.id = 'surpriseMessage';
+            surprise.innerHTML = 'Estado civil: Karendependiente 💖';
+            
+            document.body.appendChild(surprise);
+            
+            // Remover después de 3 segundos (tiempo de la animación)
+            setTimeout(() => {
+                if (document.getElementById('surpriseMessage')) {
+                    document.getElementById('surpriseMessage').remove();
+                }
+            }, 3000);
+        }
+
+        // Programar el mensaje sorpresa para 7 segundos
+        setTimeout(showSurpriseMessage, 7000);
 
         // Crear elementos decorativos
         createStars();
@@ -411,7 +483,7 @@
                 messageElement.textContent = content.frase;
                 
                 // Actualizar texto del botón
-        buttonElement.innerHTML = `🎁 Siguiente (${currentIndex + 1}/${christmasContent.length})`;
+                buttonElement.innerHTML = `🎁 Siguiente (${currentIndex + 1}/${christmasContent.length})`;
                 
                 // Animación de entrada
                 messageElement.style.opacity = '1';
@@ -477,81 +549,8 @@
                 changeContent();
             }
         });
+
+        
     </script>
-    <audio id="bgMusic" loop>
-    <!-- TU CANCIÓN DE NATALIA LAFOURCADE -->
-    <source src="https://docs.google.com/uc?export=download&id=1VWnBzPAjoZ3rsXvcN2OzLKDP5i8TznK-" type="audio/mpeg">
-    <!-- Formato alternativo por si acaso -->
-    <source src="https://docs.google.com/uc?export=download&id=1VWnBzPAjoZ3rsXvcN2OzLKDP5i8TznK-" type="audio/ogg">
-</audio>
-
-<div class="music-control" onclick="toggleMusic()" id="musicControl">
-    🔇
-</div>
-
-<script>
-    // Control de música
-    let musicPlaying = false;
-    const music = document.getElementById('bgMusic');
-    const control = document.getElementById('musicControl');
-    
-    // Configurar volumen (recomendado 0.3 para esta canción)
-    music.volume = 0.3;
-    
-    function toggleMusic() {
-        if (!musicPlaying) {
-            music.play().then(() => {
-                musicPlaying = true;
-                control.textContent = '🔊';
-                control.style.background = '#ffd700';
-            }).catch(error => {
-                // Si hay error de autoplay
-                control.textContent = '▶️';
-                control.style.background = '#ff6b6b';
-                alert('Haz clic en el botón para reproducir la música');
-            });
-        } else {
-            music.pause();
-            musicPlaying = false;
-            control.textContent = '🔇';
-            control.style.background = 'rgba(255, 255, 255, 0.9)';
-        }
-    }
-    
-    // Iniciar música automáticamente al interactuar
-    document.addEventListener('click', function initAudio() {
-        music.volume = 0.3;
-        control.textContent = '▶️';
-        document.removeEventListener('click', initAudio);
-    }, { once: true });
-</script>
-
-<style>
-    .music-control {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        z-index: 100;
-        background: rgba(255, 255, 255, 0.9);
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5em;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s;
-    }
-    
-    .music-control:hover {
-        transform: scale(1.1);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-</style>
-
-
 </body>
-
 </html>
