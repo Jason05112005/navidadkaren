@@ -478,6 +478,80 @@
             }
         });
     </script>
+    <audio id="bgMusic" loop>
+    <!-- TU CANCIÓN DE NATALIA LAFOURCADE -->
+    <source src="https://docs.google.com/uc?export=download&id=1VWnBzPAjoZ3rsXvcN2OzLKDP5i8TznK-" type="audio/mpeg">
+    <!-- Formato alternativo por si acaso -->
+    <source src="https://docs.google.com/uc?export=download&id=1VWnBzPAjoZ3rsXvcN2OzLKDP5i8TznK-" type="audio/ogg">
+</audio>
+
+<div class="music-control" onclick="toggleMusic()" id="musicControl">
+    🔇
+</div>
+
+<script>
+    // Control de música
+    let musicPlaying = false;
+    const music = document.getElementById('bgMusic');
+    const control = document.getElementById('musicControl');
+    
+    // Configurar volumen (recomendado 0.3 para esta canción)
+    music.volume = 0.3;
+    
+    function toggleMusic() {
+        if (!musicPlaying) {
+            music.play().then(() => {
+                musicPlaying = true;
+                control.textContent = '🔊';
+                control.style.background = '#ffd700';
+            }).catch(error => {
+                // Si hay error de autoplay
+                control.textContent = '▶️';
+                control.style.background = '#ff6b6b';
+                alert('Haz clic en el botón para reproducir la música');
+            });
+        } else {
+            music.pause();
+            musicPlaying = false;
+            control.textContent = '🔇';
+            control.style.background = 'rgba(255, 255, 255, 0.9)';
+        }
+    }
+    
+    // Iniciar música automáticamente al interactuar
+    document.addEventListener('click', function initAudio() {
+        music.volume = 0.3;
+        control.textContent = '▶️';
+        document.removeEventListener('click', initAudio);
+    }, { once: true });
+</script>
+
+<style>
+    .music-control {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.9);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5em;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s;
+    }
+    
+    .music-control:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+</style>
+
+
 </body>
 
 </html>
