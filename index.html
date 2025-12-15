@@ -316,6 +316,43 @@
             }
         }
 
+        /* Estilos para el botón de audio (solo si falla el autoplay) */
+        .audio-fallback {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255, 215, 0, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #0a2e38;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: none;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+
+        .audio-fallback.show {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+
+        .audio-fallback:hover {
+            background: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -345,6 +382,12 @@
                 font-size: 1.5em;
                 padding: 20px 30px;
                 max-width: 80%;
+            }
+            .audio-fallback {
+                bottom: 10px;
+                left: 10px;
+                font-size: 0.8em;
+                padding: 8px 15px;
             }
         }
     </style>
@@ -394,6 +437,19 @@
     <button class="change-btn" onclick="changeContent()">
         🎄 Cambiar Mensaje
     </button>
+
+    <!-- Botón de fallback para audio (solo aparece si se necesita) -->
+    <button class="audio-fallback" id="audioFallback" onclick="playAudioManually()">
+        🔊 Activar Música
+    </button>
+
+    <!-- Elemento de audio (oculto) -->
+    <audio id="backgroundMusic" loop>
+        <!-- Cambia "tu-cancion.mp3" por el nombre real de tu archivo -->
+        <source src="tu-cancion.mp3" type="audio/mpeg">
+        <!-- También puedes agregar una fuente alternativa desde internet si no tienes archivo -->
+        <!-- <source src="https://assets.mixkit.co/music/preview/mixkit-christmas-fireplace-231.mp3" type="audio/mpeg"> -->
+    </audio>
 
     <script>
         // Base de datos de GIFs con sus frases
@@ -466,10 +522,6 @@
                 gif: "https://i.pinimg.com/originals/07/75/d7/0775d7c762b6a1d2b702424f0cb73556.gif",
                 frase: "Vi como te mira, y yo te miro mejor  "
             }
-            
-            
-            
-            
         ];
 
         let currentIndex = 0;
@@ -478,6 +530,37 @@
         const gifElement = document.getElementById('christmasGif');
         const messageElement = document.getElementById('messageText');
         const buttonElement = document.querySelector('.change-btn');
+        const audioElement = document.getElementById('backgroundMusic');
+        const audioFallbackButton = document.getElementById('audioFallback');
+
+        // Configurar audio
+        function setupAudio() {
+            // Configurar para reproducir en bucle
+            audioElement.loop = true;
+            
+            // Intentar reproducir automáticamente
+            const playPromise = audioElement.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("Autoplay bloqueado, mostrando botón de activación");
+                    // Mostrar botón de fallback después de 2 segundos
+                    setTimeout(() => {
+                        audioFallbackButton.classList.add('show');
+                    }, 2000);
+                });
+            }
+        }
+
+        // Función para reproducir manualmente
+        function playAudioManually() {
+            audioElement.play().then(() => {
+                // Ocultar el botón si se reproduce correctamente
+                audioFallbackButton.classList.remove('show');
+            }).catch(error => {
+                console.error("Error al reproducir audio:", error);
+            });
+        }
 
         // Función para mostrar mensaje sorpresa después de 7 segundos
         function showSurpriseMessage() {
@@ -499,6 +582,19 @@
 
         // Programar el mensaje sorpresa para 7 segundos
         setTimeout(showSurpriseMessage, 7000);
+
+        // Iniciar audio cuando la página cargue
+        window.addEventListener('DOMContentLoaded', (event) => {
+            setupAudio();
+        });
+
+        // También iniciar audio cuando el usuario interactúe por primera vez
+        document.addEventListener('click', function initAudioOnInteraction() {
+            if (audioElement.paused) {
+                audioElement.play();
+            }
+            document.removeEventListener('click', initAudioOnInteraction);
+        }, { once: true });
 
         // Crear elementos decorativos
         createStars();
