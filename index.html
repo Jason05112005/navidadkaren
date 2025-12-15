@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feliz Navidad Karen</title>
     <style>
+        /* TODOS TUS ESTILOS EXISTENTES SE MANTIENEN IGUAL */
         body {
             margin: 0;
             padding: 0;
@@ -316,41 +317,32 @@
             }
         }
 
-        /* Estilos para el botón de audio (solo si falla el autoplay) */
-        .audio-fallback {
+        /* Botón de audio simplificado */
+        .audio-btn {
             position: fixed;
             bottom: 20px;
             left: 20px;
             z-index: 100;
             background: rgba(255, 215, 0, 0.9);
-            padding: 10px 20px;
-            border-radius: 20px;
+            padding: 12px;
+            border-radius: 50%;
             cursor: pointer;
             font-weight: bold;
             color: #0a2e38;
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             border: none;
-            font-size: 0.9em;
+            font-size: 1.8em;
+            width: 60px;
+            height: 60px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(10px);
-            transition: all 0.5s ease;
+            justify-content: center;
         }
 
-        .audio-fallback.show {
-            opacity: 1;
-            pointer-events: all;
-            transform: translateY(0);
-        }
-
-        .audio-fallback:hover {
+        .audio-btn:hover {
             background: #ffd700;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            transform: scale(1.1);
         }
 
         @media (max-width: 768px) {
@@ -383,11 +375,12 @@
                 padding: 20px 30px;
                 max-width: 80%;
             }
-            .audio-fallback {
+            .audio-btn {
                 bottom: 10px;
                 left: 10px;
-                font-size: 0.8em;
-                padding: 8px 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
             }
         }
     </style>
@@ -438,17 +431,20 @@
         🎄 Cambiar Mensaje
     </button>
 
-    <!-- Botón de fallback para audio (solo aparece si se necesita) -->
-    <button class="audio-fallback" id="audioFallback" onclick="playAudioManually()">
-        🔊 Activar Música
+    <!-- Botón de audio -->
+    <button class="audio-btn" id="audioBtn" onclick="playMusic()">
+        🔊
     </button>
 
-    <!-- Elemento de audio (oculto) -->
-    <audio id="backgroundMusic" loop>
-        <!-- Cambia "tu-cancion.mp3" por el nombre real de tu archivo -->
-        <source src="tqmk.mp3" type="audio/mpeg">
-        <!-- También puedes agregar una fuente alternativa desde internet si no tienes archivo -->
-        <!-- <source src="https://assets.mixkit.co/music/preview/mixkit-christmas-fireplace-231.mp3" type="audio/mpeg"> -->
+    <!-- Elemento de audio OCULTO -->
+    <audio id="bgMusic" loop style="display: none;">
+        <!-- OPCIÓN 1: Si tu archivo está en GitHub -->
+        <!-- <source src="tqmk.mp3" type="audio/mpeg"> -->
+        
+        <!-- OPCIÓN 2: Música navideña desde internet (para probar) -->
+        <source src="https://assets.mixkit.co/music/preview/mixkit-christmas-fireplace-231.mp3" type="audio/mpeg">
+        
+        Tu navegador no soporta audio.
     </audio>
 
     <script>
@@ -530,41 +526,36 @@
         const gifElement = document.getElementById('christmasGif');
         const messageElement = document.getElementById('messageText');
         const buttonElement = document.querySelector('.change-btn');
-        const audioElement = document.getElementById('backgroundMusic');
-        const audioFallbackButton = document.getElementById('audioFallback');
+        const audioElement = document.getElementById('bgMusic');
+        const audioBtn = document.getElementById('audioBtn');
 
-        // Configurar audio
-        function setupAudio() {
-            // Configurar para reproducir en bucle
-            audioElement.loop = true;
-            
-            // Intentar reproducir automáticamente
-            const playPromise = audioElement.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log("Autoplay bloqueado, mostrando botón de activación");
-                    // Mostrar botón de fallback después de 2 segundos
-                    setTimeout(() => {
-                        audioFallbackButton.classList.add('show');
-                    }, 2000);
-                });
+        // Variable para controlar el estado del audio
+        let isPlaying = false;
+
+        // Función SIMPLE para reproducir música
+        function playMusic() {
+            if (!isPlaying) {
+                audioElement.play()
+                    .then(() => {
+                        console.log("✅ Música reproduciéndose");
+                        isPlaying = true;
+                        audioBtn.innerHTML = "🔊";
+                        audioBtn.style.background = "rgba(0, 255, 0, 0.9)";
+                    })
+                    .catch(error => {
+                        console.error("❌ Error al reproducir:", error);
+                        alert("Haz clic primero en cualquier parte de la página, luego en el botón de audio.");
+                    });
+            } else {
+                audioElement.pause();
+                isPlaying = false;
+                audioBtn.innerHTML = "🔇";
+                audioBtn.style.background = "rgba(255, 0, 0, 0.9)";
             }
-        }
-
-        // Función para reproducir manualmente
-        function playAudioManually() {
-            audioElement.play().then(() => {
-                // Ocultar el botón si se reproduce correctamente
-                audioFallbackButton.classList.remove('show');
-            }).catch(error => {
-                console.error("Error al reproducir audio:", error);
-            });
         }
 
         // Función para mostrar mensaje sorpresa después de 7 segundos
         function showSurpriseMessage() {
-            // Crear elemento del mensaje
             const surprise = document.createElement('div');
             surprise.className = 'surprise-message';
             surprise.id = 'surpriseMessage';
@@ -572,7 +563,6 @@
             
             document.body.appendChild(surprise);
             
-            // Remover después de 3 segundos (tiempo de la animación)
             setTimeout(() => {
                 if (document.getElementById('surpriseMessage')) {
                     document.getElementById('surpriseMessage').remove();
@@ -583,19 +573,6 @@
         // Programar el mensaje sorpresa para 7 segundos
         setTimeout(showSurpriseMessage, 7000);
 
-        // Iniciar audio cuando la página cargue
-        window.addEventListener('DOMContentLoaded', (event) => {
-            setupAudio();
-        });
-
-        // También iniciar audio cuando el usuario interactúe por primera vez
-        document.addEventListener('click', function initAudioOnInteraction() {
-            if (audioElement.paused) {
-                audioElement.play();
-            }
-            document.removeEventListener('click', initAudioOnInteraction);
-        }, { once: true });
-
         // Crear elementos decorativos
         createStars();
         createSnowflakes();
@@ -603,7 +580,6 @@
 
         // Función principal para cambiar contenido
         function changeContent() {
-            // Avanzar al siguiente índice
             currentIndex = (currentIndex + 1) % christmasContent.length;
             
             // Animación de salida
@@ -686,7 +662,30 @@
             }
         });
 
-        
+        // Eventos para manejar interacción del usuario
+        document.addEventListener('click', function() {
+            // Solo intentar reproducir si no está reproduciéndose
+            if (!isPlaying) {
+                audioElement.play().then(() => {
+                    isPlaying = true;
+                    audioBtn.innerHTML = "🔊";
+                    audioBtn.style.background = "rgba(0, 255, 0, 0.9)";
+                }).catch(e => {
+                    // Ignorar errores de autoplay
+                });
+            }
+        }, { once: true });
+
+        // Configurar audio para que se repita en bucle
+        audioElement.addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.play();
+        });
+
+        // Mostrar mensaje de depuración
+        console.log("🎄 Página cargada correctamente");
+        console.log("💡 Haz clic en el botón 🔊 para activar la música");
+        console.log("🎶 Usando música navideña desde internet");
     </script>
 </body>
 </html>
