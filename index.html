@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feliz Navidad Karen</title>
     <style>
-        /* TODOS TUS ESTILOS EXISTENTES SE MANTIENEN IGUAL */
         body {
             margin: 0;
             padding: 0;
@@ -317,32 +316,36 @@
             }
         }
 
-        /* Botón de audio simplificado */
-        .audio-btn {
+        /* Botón de música */
+        .music-btn {
             position: fixed;
             bottom: 20px;
             left: 20px;
             z-index: 100;
-            background: rgba(255, 215, 0, 0.9);
-            padding: 12px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-            color: #0a2e38;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(45deg, #FFD700, #FFA500);
             border: none;
-            font-size: 1.8em;
+            border-radius: 50%;
             width: 60px;
             height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            color: #8B0000;
+            font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
         }
 
-        .audio-btn:hover {
-            background: #ffd700;
+        .music-btn:hover {
             transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .music-btn.playing {
+            background: linear-gradient(45deg, #00FF00, #008000);
+            color: white;
         }
 
         @media (max-width: 768px) {
@@ -375,12 +378,12 @@
                 padding: 20px 30px;
                 max-width: 80%;
             }
-            .audio-btn {
+            .music-btn {
                 bottom: 10px;
                 left: 10px;
                 width: 50px;
                 height: 50px;
-                font-size: 1.5em;
+                font-size: 20px;
             }
         }
     </style>
@@ -431,20 +434,15 @@
         🎄 Cambiar Mensaje
     </button>
 
-    <!-- Botón de audio -->
-    <button class="audio-btn" id="audioBtn" onclick="playMusic()">
-        🔊
+    <!-- Botón para música -->
+    <button class="music-btn" id="musicBtn" onclick="toggleMusic()">
+        🎵
     </button>
 
-    <!-- Elemento de audio OCULTO -->
-    <audio id="bgMusic" loop style="display: none;">
-        <!-- OPCIÓN 1: Si tu archivo está en GitHub -->
-        <!-- <source src="tqmk.mp3" type="audio/mpeg"> -->
-        
-        <!-- OPCIÓN 2: Música navideña desde internet (para probar) -->
-        <source src="https://assets.mixkit.co/music/preview/mixkit-christmas-fireplace-231.mp3" type="audio/mpeg">
-        
-        Tu navegador no soporta audio.
+    <!-- Audio invisible con tu música de Vocaroo -->
+    <audio id="backgroundMusic" loop style="display: none;">
+        <source src="https://voca.ro/11kBAkHmVJge" type="audio/mpeg">
+        Tu navegador no soporta el elemento de audio.
     </audio>
 
     <script>
@@ -526,33 +524,52 @@
         const gifElement = document.getElementById('christmasGif');
         const messageElement = document.getElementById('messageText');
         const buttonElement = document.querySelector('.change-btn');
-        const audioElement = document.getElementById('bgMusic');
-        const audioBtn = document.getElementById('audioBtn');
-
-        // Variable para controlar el estado del audio
+        const audioElement = document.getElementById('backgroundMusic');
+        const musicBtn = document.getElementById('musicBtn');
         let isPlaying = false;
 
-        // Función SIMPLE para reproducir música
-        function playMusic() {
+        // Función para controlar la música
+        function toggleMusic() {
             if (!isPlaying) {
-                audioElement.play()
-                    .then(() => {
-                        console.log("✅ Música reproduciéndose");
-                        isPlaying = true;
-                        audioBtn.innerHTML = "🔊";
-                        audioBtn.style.background = "rgba(0, 255, 0, 0.9)";
-                    })
-                    .catch(error => {
-                        console.error("❌ Error al reproducir:", error);
-                        alert("Haz clic primero en cualquier parte de la página, luego en el botón de audio.");
-                    });
+                // Intentar reproducir la música
+                audioElement.play().then(() => {
+                    isPlaying = true;
+                    musicBtn.innerHTML = '🎶';
+                    musicBtn.classList.add('playing');
+                    console.log('✅ Música reproduciéndose');
+                    
+                    // Configurar para que se repita en bucle
+                    audioElement.onended = function() {
+                        this.currentTime = 0;
+                        this.play();
+                    };
+                }).catch(error => {
+                    console.error('❌ Error al reproducir:', error);
+                    alert('Haz clic primero en cualquier parte de la página, luego en el botón de música.');
+                });
             } else {
+                // Pausar la música
                 audioElement.pause();
                 isPlaying = false;
-                audioBtn.innerHTML = "🔇";
-                audioBtn.style.background = "rgba(255, 0, 0, 0.9)";
+                musicBtn.innerHTML = '🎵';
+                musicBtn.classList.remove('playing');
             }
         }
+
+        // Intentar reproducir automáticamente cuando el usuario interactúe
+        document.addEventListener('click', function initAudio() {
+            if (!isPlaying) {
+                audioElement.play().then(() => {
+                    isPlaying = true;
+                    musicBtn.innerHTML = '🎶';
+                    musicBtn.classList.add('playing');
+                }).catch(e => {
+                    // Ignorar error, el usuario tendrá que hacer clic en el botón
+                });
+            }
+            // Remover este listener después del primer clic
+            document.removeEventListener('click', initAudio);
+        });
 
         // Función para mostrar mensaje sorpresa después de 7 segundos
         function showSurpriseMessage() {
@@ -662,30 +679,19 @@
             }
         });
 
-        // Eventos para manejar interacción del usuario
-        document.addEventListener('click', function() {
-            // Solo intentar reproducir si no está reproduciéndose
-            if (!isPlaying) {
-                audioElement.play().then(() => {
-                    isPlaying = true;
-                    audioBtn.innerHTML = "🔊";
-                    audioBtn.style.background = "rgba(0, 255, 0, 0.9)";
-                }).catch(e => {
-                    // Ignorar errores de autoplay
-                });
-            }
-        }, { once: true });
-
-        // Configurar audio para que se repita en bucle
-        audioElement.addEventListener('ended', function() {
-            this.currentTime = 0;
-            this.play();
+        // Mensaje en consola para depuración
+        console.log('🎄 Página cargada correctamente');
+        console.log('🎵 Música configurada desde Vocaroo');
+        console.log('💡 Haz clic en el botón 🎵 para reproducir tu canción');
+        
+        // Verificar si el audio se carga correctamente
+        audioElement.addEventListener('loadeddata', function() {
+            console.log('✅ Audio cargado correctamente desde Vocaroo');
         });
-
-        // Mostrar mensaje de depuración
-        console.log("🎄 Página cargada correctamente");
-        console.log("💡 Haz clic en el botón 🔊 para activar la música");
-        console.log("🎶 Usando música navideña desde internet");
+        
+        audioElement.addEventListener('error', function(e) {
+            console.error('❌ Error al cargar el audio:', e);
+        });
     </script>
 </body>
 </html>
