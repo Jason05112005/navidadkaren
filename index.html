@@ -316,6 +316,40 @@
             }
         }
 
+        /* Botón de música */
+        .music-btn {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            z-index: 100;
+            background: linear-gradient(45deg, #FF0000, #FF4500);
+            border: none;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255,0,0,0.7);
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .music-btn.playing {
+            background: linear-gradient(45deg, #00FF00, #008000);
+            box-shadow: 0 0 20px rgba(0,255,0,0.7);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -345,6 +379,13 @@
                 font-size: 1.5em;
                 padding: 20px 30px;
                 max-width: 80%;
+            }
+            .music-btn {
+                bottom: 80px;
+                left: 10px;
+                width: 60px;
+                height: 60px;
+                font-size: 25px;
             }
         }
     </style>
@@ -394,6 +435,18 @@
     <button class="change-btn" onclick="changeContent()">
         🎄 Cambiar Mensaje
     </button>
+
+    <!-- BOTÓN DE MÚSICA -->
+    <button class="music-btn" id="musicBtn" onclick="toggleMusic()">
+        🎵
+    </button>
+
+    <!-- AUDIO CON TU CANCIÓN DE GITHUB PAGES -->
+    <audio id="backgroundMusic" loop style="display: none;">
+        <!-- ESTE ES EL ENLACE QUE SÍ FUNCIONA -->
+        <source src="https://jason05112005.github.io/navidadkaren/tqmK.mp3" 
+                type="audio/mpeg">
+    </audio>
 
     <script>
         // Base de datos de GIFs con sus frases
@@ -466,22 +519,59 @@
                 gif: "https://i.pinimg.com/originals/07/75/d7/0775d7c762b6a1d2b702424f0cb73556.gif",
                 frase: "Vi como te mira, y yo te miro mejor  "
             }
-            
-            
-            
-            
         ];
 
         let currentIndex = 0;
+        let isPlaying = false;
 
         // Elementos del DOM
         const gifElement = document.getElementById('christmasGif');
         const messageElement = document.getElementById('messageText');
         const buttonElement = document.querySelector('.change-btn');
+        const audioElement = document.getElementById('backgroundMusic');
+        const musicBtn = document.getElementById('musicBtn');
+
+        // FUNCIÓN PARA LA MÚSICA
+        function toggleMusic() {
+            if (!isPlaying) {
+                audioElement.play().then(() => {
+                    isPlaying = true;
+                    musicBtn.innerHTML = '🔊';
+                    musicBtn.classList.add('playing');
+                    
+                    // BUCLE INFINITO
+                    audioElement.onended = function() {
+                        this.currentTime = 0;
+                        this.play();
+                    };
+                }).catch(error => {
+                    console.log("Haz clic en la página primero");
+                    alert("Primero haz clic en cualquier parte de la página, luego en el botón de música 🎵");
+                });
+            } else {
+                audioElement.pause();
+                isPlaying = false;
+                musicBtn.innerHTML = '🎵';
+                musicBtn.classList.remove('playing');
+            }
+        }
+
+        // Intentar reproducir automáticamente cuando el usuario interactúe
+        document.addEventListener('click', function initAudio() {
+            if (!isPlaying) {
+                audioElement.play().then(() => {
+                    isPlaying = true;
+                    musicBtn.innerHTML = '🔊';
+                    musicBtn.classList.add('playing');
+                }).catch(e => {
+                    // Si falla, el botón seguirá visible
+                });
+            }
+            document.removeEventListener('click', initAudio);
+        }, { once: true });
 
         // Función para mostrar mensaje sorpresa después de 7 segundos
         function showSurpriseMessage() {
-            // Crear elemento del mensaje
             const surprise = document.createElement('div');
             surprise.className = 'surprise-message';
             surprise.id = 'surpriseMessage';
@@ -489,7 +579,6 @@
             
             document.body.appendChild(surprise);
             
-            // Remover después de 3 segundos (tiempo de la animación)
             setTimeout(() => {
                 if (document.getElementById('surpriseMessage')) {
                     document.getElementById('surpriseMessage').remove();
@@ -507,7 +596,6 @@
 
         // Función principal para cambiar contenido
         function changeContent() {
-            // Avanzar al siguiente índice
             currentIndex = (currentIndex + 1) % christmasContent.length;
             
             // Animación de salida
@@ -590,7 +678,10 @@
             }
         });
 
-        
+        // Mensaje en consola para confirmar
+        console.log('🎄 Página cargada correctamente');
+        console.log('🎵 Audio configurado desde GitHub Pages');
+        console.log('🔗 URL del audio: https://jason05112005.github.io/navidadkaren/tqmK.mp3');
     </script>
 </body>
 </html>
