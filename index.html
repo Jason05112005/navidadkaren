@@ -316,38 +316,6 @@
             }
         }
 
-        /* Botón de música */
-        .music-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 100;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            color: #8B0000;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .music-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
-        }
-
-        .music-btn.playing {
-            background: linear-gradient(45deg, #00FF00, #008000);
-            color: white;
-        }
-
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -377,13 +345,6 @@
                 font-size: 1.5em;
                 padding: 20px 30px;
                 max-width: 80%;
-            }
-            .music-btn {
-                bottom: 10px;
-                left: 10px;
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
             }
         }
     </style>
@@ -433,17 +394,6 @@
     <button class="change-btn" onclick="changeContent()">
         🎄 Cambiar Mensaje
     </button>
-
-    <!-- Botón para música -->
-    <button class="music-btn" id="musicBtn" onclick="toggleMusic()">
-        🎵
-    </button>
-
-    <!-- Audio invisible con tu música de Vocaroo -->
-    <audio id="backgroundMusic" loop style="display: none;">
-        <source src="https://voca.ro/11kBAkHmVJge" type="audio/mpeg">
-        Tu navegador no soporta el elemento de audio.
-    </audio>
 
     <script>
         // Base de datos de GIFs con sus frases
@@ -516,6 +466,10 @@
                 gif: "https://i.pinimg.com/originals/07/75/d7/0775d7c762b6a1d2b702424f0cb73556.gif",
                 frase: "Vi como te mira, y yo te miro mejor  "
             }
+            
+            
+            
+            
         ];
 
         let currentIndex = 0;
@@ -524,55 +478,10 @@
         const gifElement = document.getElementById('christmasGif');
         const messageElement = document.getElementById('messageText');
         const buttonElement = document.querySelector('.change-btn');
-        const audioElement = document.getElementById('backgroundMusic');
-        const musicBtn = document.getElementById('musicBtn');
-        let isPlaying = false;
-
-        // Función para controlar la música
-        function toggleMusic() {
-            if (!isPlaying) {
-                // Intentar reproducir la música
-                audioElement.play().then(() => {
-                    isPlaying = true;
-                    musicBtn.innerHTML = '🎶';
-                    musicBtn.classList.add('playing');
-                    console.log('✅ Música reproduciéndose');
-                    
-                    // Configurar para que se repita en bucle
-                    audioElement.onended = function() {
-                        this.currentTime = 0;
-                        this.play();
-                    };
-                }).catch(error => {
-                    console.error('❌ Error al reproducir:', error);
-                    alert('Haz clic primero en cualquier parte de la página, luego en el botón de música.');
-                });
-            } else {
-                // Pausar la música
-                audioElement.pause();
-                isPlaying = false;
-                musicBtn.innerHTML = '🎵';
-                musicBtn.classList.remove('playing');
-            }
-        }
-
-        // Intentar reproducir automáticamente cuando el usuario interactúe
-        document.addEventListener('click', function initAudio() {
-            if (!isPlaying) {
-                audioElement.play().then(() => {
-                    isPlaying = true;
-                    musicBtn.innerHTML = '🎶';
-                    musicBtn.classList.add('playing');
-                }).catch(e => {
-                    // Ignorar error, el usuario tendrá que hacer clic en el botón
-                });
-            }
-            // Remover este listener después del primer clic
-            document.removeEventListener('click', initAudio);
-        });
 
         // Función para mostrar mensaje sorpresa después de 7 segundos
         function showSurpriseMessage() {
+            // Crear elemento del mensaje
             const surprise = document.createElement('div');
             surprise.className = 'surprise-message';
             surprise.id = 'surpriseMessage';
@@ -580,6 +489,7 @@
             
             document.body.appendChild(surprise);
             
+            // Remover después de 3 segundos (tiempo de la animación)
             setTimeout(() => {
                 if (document.getElementById('surpriseMessage')) {
                     document.getElementById('surpriseMessage').remove();
@@ -597,6 +507,7 @@
 
         // Función principal para cambiar contenido
         function changeContent() {
+            // Avanzar al siguiente índice
             currentIndex = (currentIndex + 1) % christmasContent.length;
             
             // Animación de salida
@@ -679,19 +590,7 @@
             }
         });
 
-        // Mensaje en consola para depuración
-        console.log('🎄 Página cargada correctamente');
-        console.log('🎵 Música configurada desde Vocaroo');
-        console.log('💡 Haz clic en el botón 🎵 para reproducir tu canción');
         
-        // Verificar si el audio se carga correctamente
-        audioElement.addEventListener('loadeddata', function() {
-            console.log('✅ Audio cargado correctamente desde Vocaroo');
-        });
-        
-        audioElement.addEventListener('error', function(e) {
-            console.error('❌ Error al cargar el audio:', e);
-        });
     </script>
 </body>
 </html>
